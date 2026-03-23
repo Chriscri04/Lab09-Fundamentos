@@ -51,7 +51,7 @@ export async function getAllProperties(req: Request, res: Response): Promise<voi
     const desplazamiento = (pagina - 1) * limite;
 
     // Delegamos al repositorio
-    const { data, total } = await propertyRepository.findAll(filters, { pagina, limite, desplazamiento });
+    const { data, total } = await propertyRepository.findAllPaginated(filters, { page: pagina, limit: limite });
 
     const result = pagina > Math.ceil(total / limite) ? [] : data;
 

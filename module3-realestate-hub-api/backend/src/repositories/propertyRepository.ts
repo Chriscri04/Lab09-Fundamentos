@@ -58,6 +58,18 @@ interface PrismaProperty {
   images: string;
   createdAt: Date;
   updatedAt: Date;
+  
+}
+
+export interface PaginationOptions {
+  page:number;
+  limit: number;
+}
+
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
 }
 
 // =============================================================================
@@ -130,6 +142,31 @@ export const propertyRepository = {
     });
 
     return properties.map(toProperty);
+  },
+
+  async findAllPaginated(
+    filters?:PropertyFilters,
+    pagination?:PaginationOptions
+  ):Promise<PaginatedResult<Property>>{
+    const where = buildWhereClause(filters);
+    const page = pagination?.page ?? 1;
+    const limit = pagination?.limit ?? 10;
+    const skip = (page-1) * limit;
+
+    const [properties, total] = await Promise.all([
+      prisma.property.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.property.count({ where }),
+    ]);
+
+    return {
+      data: properties.map(toProperty),
+      total,
+    }; 
   },
 
   /**
