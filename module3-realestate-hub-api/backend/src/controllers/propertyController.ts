@@ -46,12 +46,23 @@ export async function getAllProperties(req: Request, res: Response): Promise<voi
       city: req.query.city as string | undefined,
     };
 
+    const pagina = Math.max(1, Number(req.query.page) || 1);
+    const limite = Math.min(100, Math.max(1, Number(req.query.limit) || 10));
+    const desplazamiento = (pagina - 1) * limite;
+
     // Delegamos al repositorio
-    const properties = await propertyRepository.findAll(filters);
+    const { data, total } = await propertyRepository.findAll(filters, { pagina, limite, desplazamiento });
+
+    const result = pagina > Math.ceil(total / limite) ? [] : data;
 
     res.json({
       success: true,
-      data: properties,
+      data: result,
+      meta: {
+        total,
+        totalPages: Math.ceil(total / limite),
+        page: pagina,
+      }
     });
   } catch (error) {
     console.error('Error al obtener propiedades:', error);
