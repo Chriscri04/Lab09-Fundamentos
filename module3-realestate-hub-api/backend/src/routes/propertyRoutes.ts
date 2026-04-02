@@ -23,6 +23,7 @@ import {
   createProperty,
   updateProperty,
   deleteProperty,
+  getPropertyStats,
 } from '../controllers/propertyController.js';
 
 const router = Router();
@@ -47,6 +48,14 @@ const router = Router();
  */
 router.get('/', (req, res) => {
   void getAllProperties(req, res);
+});
+
+/**
+ * GET /api/properties/stats
+ * Retorna estadísticas generales de propiedades.
+ */
+router.get('/stats', (req, res) => {
+  void getPropertyStats(req, res);
 });
 
 /**
