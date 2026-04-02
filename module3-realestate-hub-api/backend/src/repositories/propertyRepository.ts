@@ -232,6 +232,29 @@ export const propertyRepository = {
     });
     return property !== null;
   },
+    async getStats() {
+    const [total, porTipo] = await Promise.all([
+      prisma.property.count(),
+      prisma.property.groupBy({
+        by: ['propertyType'],
+        _count: { id: true },
+        _avg: { price: true },
+        _min: { price: true },
+        _max: { price: true },
+      }),
+    ]);
+
+    return {
+      total,
+      porTipo: porTipo.map(tipo => ({
+        tipo: tipo.propertyType,
+        cantidad: tipo._count.id,
+        precioPromedio: tipo._avg.price,
+        precioMinimo: tipo._min.price,
+        precioMaximo: tipo._max.price,
+      })),
+    };
+  },
 };
 
 // =============================================================================
